@@ -47,7 +47,12 @@ class Gratan::Exporter
       required = grant.delete(:require)
 
       packed[user_host] ||= {:objects => {}, :options => {}}
-      packed[user_host][:objects][object] = grant
+      # SHOW GRANTS で複数行に分かれている場合があるのでマージする
+      if packed[user_host][:objects][object]
+        packed[user_host][:objects][object][:privs] |= grant[:privs]
+      else
+        packed[user_host][:objects][object] = grant
+      end
       packed[user_host][:options][:required] = required if required
 
       if @options[:with_identifier] and identified
