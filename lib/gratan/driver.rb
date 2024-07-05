@@ -9,7 +9,8 @@ class Gratan::Driver
   end
 
   def each_user
-    query('SELECT user, host FROM mysql.user').each do |row|
+    # role 以外の user を取得
+    query('SELECT user, host FROM mysql.user WHERE user NOT IN (SELECT from_user FROM mysql.role_edges)').each do |row|
       yield(row['user'], row['host'])
     end
   end

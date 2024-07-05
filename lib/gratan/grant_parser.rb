@@ -1,4 +1,6 @@
 class Gratan::GrantParser
+  class ParseError < StandardError; end
+
   def initialize(stmt, create_user = nil)
     @stmt = stmt.strip
     @create_user = create_user
@@ -67,6 +69,10 @@ class Gratan::GrantParser
 
   def parse_main
     md = /\AGRANT\s+(.+?)\s+ON\s+(.+?)\s+TO\s+'(.*)'@'(.+)'\z/.match(@stmt.gsub('`', '\''))
+    unless md
+      # MySQL 8 で追加された role を無視
+      raise ParseError, "invalid grant statement: #{@stmt}"
+    end
     privs, object, user, host = md.captures
     @parsed[:privs] = parse_privs(privs.strip)
     @parsed[:object] = object.gsub('\'', '').strip

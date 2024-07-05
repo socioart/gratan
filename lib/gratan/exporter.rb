@@ -24,6 +24,8 @@ class Gratan::Exporter
 
       @driver.show_grants(user, host) do |stmt|
         grants << Gratan::GrantParser.parse(stmt, create_user)
+      rescue Gratan::GrantParser::ParseError => e
+        warn e.message
       end
     end
 
